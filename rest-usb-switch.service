@@ -1,0 +1,14 @@
+[Unit]
+Description=Rest API to control USB devices for Home Assistant
+After=network-online.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+ExecStart=/home/pi/usb-rest-api/start.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
