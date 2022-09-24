@@ -14,14 +14,17 @@ class StatusRequest(pydantic.BaseModel):
 def get_status(switch_id: int) -> str:
     try:
         output = subprocess.check_output(
-            ["sudo", "/usr/sbin/uhubctl", "-p", str(switch_id)]).decode("utf-8")
+            ["sudo", "/usr/sbin/uhubctl", "-p", str(switch_id)]
+        ).decode("utf-8")
         status = re.search(r"Port \d+: \d+ (power|off)", output).group(1)
 
         if status == "power":
             return "on"
         elif status == "off":
             return "off"
-    except Exception:
+    except subprocess.CalledProcessError | AttributeError:
+        return "unknown"
+    else:
         return "unknown"
 
 
