@@ -6,12 +6,14 @@ import pydantic
 
 app = fastapi.FastAPI()
 
+SWITCH_PORT = 2
+
 
 class StatusRequest(pydantic.BaseModel):
     status: str
 
 
-def get_status(switch_id: int) -> str:
+def get_status(switch_id: int = SWITCH_PORT) -> str:
     try:
         output = subprocess.check_output(
             ["sudo", "/usr/sbin/uhubctl", "-p", str(switch_id)]
@@ -28,14 +30,14 @@ def get_status(switch_id: int) -> str:
         return "unknown"
 
 
-@app.get("/switches/{switch_id}")
-def get_switch(switch_id: int):
-    return {"status": get_status(switch_id)}
+@app.get("/switch")
+def get_switch():
+    return {"status": get_status()}
 
 
-@app.post("/switches/{switch_id}")
-def post_switch(switch_id: int, req: StatusRequest):
+@app.post("/switch")
+def post_switch(req: StatusRequest):
     switch = "on" if req.status == 'on' else "off"
     subprocess.check_call(
-        ["sudo", "/usr/sbin/uhubctl", "-p", str(switch_id), "-a", switch])
-    return {"status": get_status(switch_id)}
+        ["sudo", "/usr/sbin/uhubctl", "-p", str(SWITCH_PORT), "-a", switch])
+    return {"status": get_status()}
